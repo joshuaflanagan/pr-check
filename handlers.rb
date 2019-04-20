@@ -3,8 +3,10 @@
 $LOAD_PATH.unshift(File.expand_path("lib", __dir__))
 load "vendor/bundle/bundler/setup.rb"
 
-require 'json'
+require "slack_event_received"
 
-def hello(event:, context:)
-  { statusCode: 200, body: JSON.generate('Go Serverless v1.0! Your function executed successfully!') }
+module Handlers
+  def self.slack_event_received(event:, context:)
+    SlackEventReceived.(event, context)
+  end
 end

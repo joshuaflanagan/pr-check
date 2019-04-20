@@ -12,5 +12,7 @@ package:
     - lib/**
 
 functions:
-  hello:
-    handler: handlers.hello
+  slack:
+    handler: handlers.Handlers.slack_event_received
+    events:
+      - http: POST /slack
