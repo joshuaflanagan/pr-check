@@ -5,3 +5,4 @@ require "dependency"
 Dependency.activate
 
 require "logger"
+require "mentions_store"

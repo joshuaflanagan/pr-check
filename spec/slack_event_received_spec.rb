@@ -70,4 +70,66 @@ RSpec.describe "Handling Slack events" do
     end
   end
 
+  context "when an event_callback event occurs" do
+    let(:slack_event) {
+      {
+      "type" => "some_event_type"
+      }
+    }
+    let(:slack_payload) {
+      {
+        "token"=>"hMUbwB9999KdLbmmuxALHn8Z",
+        "team_id"=>"T0TEAMID",
+        "api_app_id"=>"APP12345",
+        "event"=> slack_event,
+        "type"=>"event_callback",
+        "event_id"=>"Ev111Z1AM6",
+        "event_time"=>1555820196,
+        "authed_users"=>["USER5555"]
+      }
+    }
+
+    it "returns a 200 status" do
+      response = handler.call(lambda_event)
+
+      expect(response.fetch("statusCode")).to eq(200)
+    end
+
+    context "and the event type is link_shared" do
+      let(:slack_event) {
+        {
+          "type"=>"link_shared",
+          "user"=>"USER5555",
+          "channel"=>"GG09876",
+          "message_ts"=>"1555820195.000400",
+          "links"=> [
+            {
+              "url"=>"https://github.com/ExampleUser/example_repo/pull/4204",
+              "domain"=>"github.com"
+            }
+          ]
+        }
+      }
+
+      it "returns a 200 status" do
+        response = handler.call(lambda_event)
+
+        expect(response.fetch("statusCode")).to eq(200)
+      end
+
+      #TODO: can actually capture more than one PR in single mention.
+      #Do we want to support that? or do we just store the first?
+      #How will we know which PR the reaction belongs to?
+      it "captures the PR and message timestamp" do
+        handler.call(lambda_event)
+
+        mentions_store = handler.mentions_store
+        saved_mention = mentions_store.last_mention
+
+        expect(saved_mention[:pr_id]).to eq("ExampleUser/example_repo/pull/4204")
+        expect(saved_mention[:mention_id]).to eq("1555820195.000400")
+      end
+    end
+  end
+
 end
