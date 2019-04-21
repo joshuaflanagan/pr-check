@@ -1,9 +1,19 @@
 # frozen_string_literal: true
-require 'json'
+
+require "json"
+require "init"
 
 class SlackEventReceived
+  dependency :logger, ::Logger
+
   def self.call(event, context)
-    new.call(event)
+    build.call(event)
+  end
+
+  def self.build
+    instance = new
+    Logger.configure(instance)
+    instance
   end
 
   def call(event)
@@ -11,11 +21,13 @@ class SlackEventReceived
 
     slack_event_type = payload["type"]
     unless slack_event_type == "url_verification"
+      logger << "UNRECOGNIZED TYPE: #{event}"
       return fail_response(400)
     end
 
     challenge = payload["challenge"]
     unless challenge
+      logger << "NO CHALLENGE: #{event}"
       return fail_response(400)
     end
 

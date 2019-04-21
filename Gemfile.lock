@@ -1,7 +1,17 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    byebug (11.0.1)
     diff-lcs (1.3)
+    evt-attribute (1.0.0.0)
+    evt-dependency (1.0.0.0)
+      evt-subst_attr
+    evt-reflect (0.2.0.0)
+    evt-subst_attr (1.0.0.0)
+      evt-attribute
+      evt-reflect
+      naught
+    naught (1.1.0)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -20,6 +30,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  byebug
+  evt-dependency
   rspec
 
 BUNDLED WITH

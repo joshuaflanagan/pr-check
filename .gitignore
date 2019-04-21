@@ -53,3 +53,4 @@ build-iPhoneSimulator/
 
 # package directories
 node_modules
+.byebug_history
