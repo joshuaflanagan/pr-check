@@ -96,38 +96,104 @@ RSpec.describe "Handling Slack events" do
     end
 
     context "and the event type is link_shared" do
+      let(:links) { [] }
+
       let(:slack_event) {
         {
           "type"=>"link_shared",
           "user"=>"USER5555",
           "channel"=>"GG09876",
           "message_ts"=>"1555820195.000400",
-          "links"=> [
+          "links"=> links
+        }
+      }
+
+      context "containing a single github link" do
+        let(:links) {
+          [
+            {
+              "url"=>"https://slack.com/message",
+              "domain"=>"slack.com"
+            },
             {
               "url"=>"https://github.com/ExampleUser/example_repo/pull/4204",
               "domain"=>"github.com"
             }
           ]
         }
-      }
+        it "returns a 200 status" do
+          response = handler.call(lambda_event)
 
-      it "returns a 200 status" do
-        response = handler.call(lambda_event)
+          expect(response.fetch("statusCode")).to eq(200)
+        end
 
-        expect(response.fetch("statusCode")).to eq(200)
+        it "captures the PR and message timestamp" do
+          handler.call(lambda_event)
+
+          mentions_store = handler.mentions_store
+          saved_mention = mentions_store.last_mention
+
+          expect(saved_mention[:pr_id]).to eq("ExampleUser/example_repo/pull/4204")
+          expect(saved_mention[:mention_id]).to eq("1555820195.000400")
+        end
       end
 
-      #TODO: can actually capture more than one PR in single mention.
-      #Do we want to support that? or do we just store the first?
-      #How will we know which PR the reaction belongs to?
-      it "captures the PR and message timestamp" do
-        handler.call(lambda_event)
+      context "containing no github links" do
+        let(:links) {
+          [
+            {
+              "url"=>"https://slack.com/message",
+              "domain"=>"slack.com"
+            }
+          ]
+        }
 
-        mentions_store = handler.mentions_store
-        saved_mention = mentions_store.last_mention
+        it "returns a 200 status" do
+          response = handler.call(lambda_event)
 
-        expect(saved_mention[:pr_id]).to eq("ExampleUser/example_repo/pull/4204")
-        expect(saved_mention[:mention_id]).to eq("1555820195.000400")
+          expect(response.fetch("statusCode")).to eq(200)
+        end
+
+        it "does not capture a mention" do
+          handler.call(lambda_event)
+
+          mentions_store = handler.mentions_store
+          saved_mention = mentions_store.last_mention
+
+          expect(saved_mention).to be_nil
+        end
+      end
+
+      context "containing more than one github link" do
+        let(:links) {
+          [
+            {
+              "url"=>"https://github.com/ExampleUser/example_repo/pull/4204",
+              "domain"=>"github.com"
+            },
+            {
+              "url"=>"https://github.com/ExampleUser/example_repo/pull/8888",
+              "domain"=>"github.com"
+            }
+          ]
+        }
+
+        it "returns a 200 status" do
+          response = handler.call(lambda_event)
+
+          expect(response.fetch("statusCode")).to eq(200)
+        end
+
+        # We won't be able to react to an individual PR in the mention, so
+        # it doesn't make sense to react at all.
+        it "does not capture a mention" do
+          handler.call(lambda_event)
+
+          mentions_store = handler.mentions_store
+          saved_mention = mentions_store.last_mention
+
+          expect(saved_mention).to be_nil
+        end
       end
     end
   end
