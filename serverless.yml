@@ -8,6 +8,21 @@ provider:
   stage: ${opt:stage, "development"}
   profile: se-dev
 
+  stackTags:
+    Env: ${self:provider.stage}
+    App: ${self:service}
+
+  iamRoleStatements:
+    # Give our lambda permission to store events in the dynamo db table for
+    # this service and stage
+    - Sid: MentionsWriteAccess
+      Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource:
+         "Fn::GetAtt": [ PullRequestMentionsTable, Arn ]
+        #- "arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/${self:service}-${self:provider.stage}-events"
+
 package:
   include:
     - handlers.rb
@@ -18,3 +33,24 @@ functions:
     handler: handlers.Handlers.slack_event_received
     events:
       - http: POST /slack
+
+resources:
+  - Resources:
+      PullRequestMentionsTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: ${self:service}-${self:provider.stage}-PullRequestMentions
+          AttributeDefinitions:
+            - AttributeName: pr_id
+              AttributeType: S
+            - AttributeName: mention_id
+              AttributeType: S
+          KeySchema:
+            - AttributeName: pr_id
+              KeyType: HASH
+            - AttributeName: mention_id
+              KeyType: RANGE
+          BillingMode: PAY_PER_REQUEST
+          TimeToLiveSpecification:
+            AttributeName: expires_at
+            Enabled: true

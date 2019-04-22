@@ -12,9 +12,10 @@ class SlackEventReceived
   end
 
   def self.build
-    instance = new
-    Logger.configure(instance)
-    instance
+    new.tap do |instance|
+      Logger.configure(instance)
+      MentionsStore.configure(instance)
+    end
   end
 
   def call(event)
