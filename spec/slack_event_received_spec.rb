@@ -102,7 +102,7 @@ RSpec.describe "Handling Slack events" do
         {
           "type"=>"link_shared",
           "user"=>"USER5555",
-          "channel"=>"GG09876",
+          "channel"=>"CHANNEL200",
           "message_ts"=>"1555820195.000400",
           "links"=> links
         }
@@ -127,14 +127,14 @@ RSpec.describe "Handling Slack events" do
           expect(response.fetch("statusCode")).to eq(200)
         end
 
-        it "captures the PR and message timestamp" do
+        it "captures the mention as a PR and message identifier" do
           handler.call(lambda_event)
 
           mentions_store = handler.mentions_store
           saved_mention = mentions_store.last_mention
 
-          expect(saved_mention[:pr_id]).to eq("ExampleUser/example_repo/pull/4204")
-          expect(saved_mention[:mention_id]).to eq("1555820195.000400")
+          expect(saved_mention[:pr_id]).to eq("github.com/ExampleUser/example_repo/pull/4204")
+          expect(saved_mention[:mention_id]).to eq("CHANNEL200|1555820195.000400")
         end
       end
 

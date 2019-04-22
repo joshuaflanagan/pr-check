@@ -43,8 +43,10 @@ class SlackEventReceived
       }
       if github_links.length == 1
         url = github_links[0].fetch("url")
-        pr_id = url.split(/github\.com\//, 2).last
-        mention_id = slack_event.fetch("message_ts")
+        _protocol, pr_id = url.split("://", 2)
+        channel = slack_event.fetch("channel")
+        message_ts = slack_event.fetch("message_ts")
+        mention_id = "#{channel}|#{message_ts}"
         mentions_store.save(pr_id: pr_id, mention_id: mention_id)
       end
     else
