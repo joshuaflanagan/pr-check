@@ -5,7 +5,9 @@ require "dependency"
 Dependency.activate
 
 require "logger"
+require "settings"
 require "dynamodb_client"
 require "mentions_store"
 
 DynamodbClient.init
+Settings.init(ENV)

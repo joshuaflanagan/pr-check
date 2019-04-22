@@ -2,6 +2,8 @@
 
 class MentionsStore
   dependency :dynamodb_client, Aws::DynamoDB::Client
+  attr_accessor :table_name
+  attr_accessor :ttl
 
   def self.configure(other)
     other.mentions_store = build
@@ -9,22 +11,18 @@ class MentionsStore
 
   def self.build
     new.tap do |instance|
+      Settings.configure(instance)
       DynamodbClient.configure(instance)
     end
-  end
-
-  def initialize
-    #TODO
-    @table_name = "pr-check-development-PullRequestMentions"
   end
 
   def save(pr_id:, mention_id:)
     item = {
       pr_id: pr_id,
       mention_id: mention_id,
-      expires_at: (Time.now.to_i + 30 * 24 * 60 * 60)
+      expires_at: (Time.now.to_i + Integer(ttl))
     }
-    dynamodb_client.put_item(table_name: @table_name, item: item)
+    dynamodb_client.put_item(table_name: table_name, item: item)
   end
 
   class Substitute

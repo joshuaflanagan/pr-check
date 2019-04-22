@@ -12,6 +12,10 @@ provider:
     Env: ${self:provider.stage}
     App: ${self:service}
 
+  environment:
+    TABLE_NAME: ${self:service}-${self:provider.stage}-PullRequestMentions
+    TTL: 2592000 # 30 days
+
   iamRoleStatements:
     # Give our lambda permission to store events in the dynamo db table for
     # this service and stage
