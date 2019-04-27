@@ -1,4 +1,6 @@
 {
+  "licence": "UNLICENSED",
+  "private": true,
   "dependencies": {
     "serverless-ruby-package": "^1.1.1"
   }
