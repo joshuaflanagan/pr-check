@@ -15,6 +15,7 @@ provider:
   environment:
     TABLE_NAME: ${self:service}-${self:provider.stage}-PullRequestMentions
     TTL: 2592000 # 30 days
+    SLACK_TOKEN: ${env:SLACK_TOKEN}
 
   iamRoleStatements:
     # Give our lambda permission to store events in the dynamo db table for
@@ -37,6 +38,11 @@ functions:
     handler: handlers.Handlers.slack_event_received
     events:
       - http: POST /slack
+  react:
+    # this is temporary, to get slack post mechanics working
+    handler: handlers.Handlers.test_reaction
+    events:
+      - http: POST /reaction
 
 resources:
   - Resources:
