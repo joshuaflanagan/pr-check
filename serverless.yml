@@ -38,8 +38,12 @@ functions:
     handler: handlers.Handlers.slack_event_received
     events:
       - http: POST /slack
+  github:
+    handler: handlers.Handlers.github_event_received
+    events:
+      - http: POST /github
+  # this is temporary, to get slack post mechanics working
   react:
-    # this is temporary, to get slack post mechanics working
     handler: handlers.Handlers.test_reaction
     events:
       - http: POST /reaction

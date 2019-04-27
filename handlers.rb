@@ -12,6 +12,15 @@ module Handlers
     SlackEventReceived.(event, context)
   end
 
+  def self.github_event_received(event:, context:)
+    puts event.inspect
+    body = JSON.parse(event["body"])
+    puts body.inspect
+    {
+      "statusCode" => 200,
+    }
+  end
+
   # TODO:
   # - load channel and timestamp from DB record
   # - load reaction from ENV (: separated?)
