@@ -11,7 +11,7 @@ class MentionsStore
 
   def self.build
     new.tap do |instance|
-      Settings.configure(instance)
+      Settings.configure("mentions", instance)
       DynamodbClient.configure(instance)
     end
   end

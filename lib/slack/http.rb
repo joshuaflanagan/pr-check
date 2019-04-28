@@ -12,7 +12,7 @@ module Slack
 
     def self.build
       new.tap do |instance|
-        Settings.configure(instance)
+        Settings.configure("slack", instance)
       end
     end
 

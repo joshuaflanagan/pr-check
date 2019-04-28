@@ -13,8 +13,8 @@ provider:
     App: ${self:service}
 
   environment:
-    TABLE_NAME: ${self:service}-${self:provider.stage}-PullRequestMentions
-    TTL: 2592000 # 30 days
+    MENTIONS_TABLE_NAME: ${self:service}-${self:provider.stage}-PullRequestMentions
+    MENTIONS_TTL: 2592000 # 30 days
     SLACK_TOKEN: ${env:SLACK_TOKEN}
 
   iamRoleStatements:
