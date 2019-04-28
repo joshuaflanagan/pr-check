@@ -22,6 +22,11 @@ module Handlers
   # - load reaction from ENV (: separated?)
   # - load token from Amazon Secrets?
   def self.test_reaction(event:, context:)
+    return {
+      "statusCode": 200,
+      "body": JSON.generate({topic: ENV["snsArn"]})
+    }
+
     body = JSON.parse(event["body"])
 
     reaction = body["reaction"] || "three"

@@ -48,11 +48,18 @@ functions:
     handler: handlers.Handlers.github_event_received
     events:
       - http: POST /github
+  mark:
+    events:
+      - sns: mark_pr_approved
+    handler: handlers.Handlers.mark_pr_approved
   # this is temporary, to get slack post mechanics working
   react:
     handler: handlers.Handlers.test_reaction
     events:
       - http: POST /reaction
+    environment:
+      snsArn:
+        Ref: SNSTopicMarkprapproved
 
 resources:
   - Resources:
