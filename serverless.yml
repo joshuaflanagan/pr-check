@@ -13,20 +13,26 @@ provider:
     App: ${self:service}
 
   environment:
+    PRAPPROVED_TABLE_NAME: ${self:service}-${self:provider.stage}-PullRequestApprovals
     MENTIONS_TABLE_NAME: ${self:service}-${self:provider.stage}-PullRequestMentions
     MENTIONS_TTL: 2592000 # 30 days
     SLACK_TOKEN: ${env:SLACK_TOKEN}
 
   iamRoleStatements:
-    # Give our lambda permission to store events in the dynamo db table for
-    # this service and stage
+    # Give our lambda permission to store events in the mentions dynamodb table
     - Sid: MentionsWriteAccess
       Effect: Allow
       Action:
         - dynamodb:PutItem
       Resource:
          "Fn::GetAtt": [ PullRequestMentionsTable, Arn ]
-        #- "arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/${self:service}-${self:provider.stage}-events"
+    # Give our lambda permission to store events in the approvals dynamodb table
+    - Sid: ApprovalsWriteAccess
+      Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource:
+         "Fn::GetAtt": [ PullRequestApprovalsTable, Arn ]
 
 package:
   include:
@@ -50,6 +56,17 @@ functions:
 
 resources:
   - Resources:
+      PullRequestApprovalsTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: ${self:service}-${self:provider.stage}-PullRequestApprovals
+          AttributeDefinitions:
+            - AttributeName: pr_id
+              AttributeType: S
+          KeySchema:
+            - AttributeName: pr_id
+              KeyType: HASH
+          BillingMode: PAY_PER_REQUEST
       PullRequestMentionsTable:
         Type: AWS::DynamoDB::Table
         Properties:

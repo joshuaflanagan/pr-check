@@ -6,6 +6,7 @@ load "vendor/bundle/bundler/setup.rb"
 require "http"
 require "slack_event_received"
 require "slack/add_reaction"
+require "github/event_received"
 
 module Handlers
   def self.slack_event_received(event:, context:)
@@ -13,12 +14,7 @@ module Handlers
   end
 
   def self.github_event_received(event:, context:)
-    puts event.inspect
-    body = JSON.parse(event["body"])
-    puts body.inspect
-    {
-      "statusCode" => 200,
-    }
+    Github::EventReceived.(event, context)
   end
 
   # TODO:
