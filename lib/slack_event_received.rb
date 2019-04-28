@@ -2,10 +2,12 @@
 
 require "json"
 require "init"
+require "pull_request_identifier"
 
 class SlackEventReceived
   dependency :logger, ::Logger
   dependency :mentions_store, MentionsStore
+  dependency :pull_request_identifier, PullRequestIdentifier
 
   def self.call(event, context)
     build.call(event)
@@ -43,7 +45,7 @@ class SlackEventReceived
       }
       if github_links.length == 1
         url = github_links[0].fetch("url")
-        _protocol, pr_id = url.split("://", 2)
+        pr_id = pull_request_identifier.(url)
         channel = slack_event.fetch("channel")
         message_ts = slack_event.fetch("message_ts")
         mention_id = "#{channel}|#{message_ts}"
