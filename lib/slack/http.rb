@@ -4,7 +4,7 @@ require "http"
 
 module Slack
   class Http
-    attr_accessor :slack_token
+    attr_accessor :token
 
     def self.configure(other)
       other.http = build
@@ -17,11 +17,12 @@ module Slack
     end
 
     def call(verb, uri, payload: nil)
-      response = HTTP.headers("Authorization" => "Bearer #{slack_token}").
+      response = HTTP.headers("Authorization" => "Bearer #{token}").
         request(verb, uri, json: payload)
       unless response.status.ok?
         raise Error.new(response)
       end
+      response
     end
 
     class Error < StandardError
