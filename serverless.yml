@@ -20,16 +20,20 @@ provider:
 
   iamRoleStatements:
     # Give our lambda permission to store events in the mentions dynamodb table
-    - Sid: MentionsWriteAccess
+    - Sid: MentionsReadWriteAccess
       Effect: Allow
       Action:
+        - dynamodb:GetItem
+        - dynamodb:Query
         - dynamodb:PutItem
       Resource:
          "Fn::GetAtt": [ PullRequestMentionsTable, Arn ]
     # Give our lambda permission to store events in the approvals dynamodb table
-    - Sid: ApprovalsWriteAccess
+    - Sid: ApprovalsReadWriteAccess
       Effect: Allow
       Action:
+        - dynamodb:GetItem
+        - dynamodb:Query
         - dynamodb:PutItem
       Resource:
          "Fn::GetAtt": [ PullRequestApprovalsTable, Arn ]
@@ -49,20 +53,21 @@ functions:
     events:
       - http: POST /github
   mark:
-    events:
-      - sns: mark_pr_approved
     handler: handlers.Handlers.mark_pr_approved
+    events:
+      # This endpoint is only used to ease manual invocation
+      - http: POST /mark_prs
+    environment:
+      MARK_REACTION: white_check_mark
   # this is temporary, to get slack post mechanics working
   react:
     handler: handlers.Handlers.test_reaction
     events:
       - http: POST /reaction
-    environment:
-      snsArn:
-        Ref: SNSTopicMarkprapproved
 
 resources:
   - Resources:
+      #The DynamoDB table where we keep track of PRs that have been approved
       PullRequestApprovalsTable:
         Type: AWS::DynamoDB::Table
         Properties:
@@ -74,6 +79,7 @@ resources:
             - AttributeName: pr_id
               KeyType: HASH
           BillingMode: PAY_PER_REQUEST
+      #The DynamoDB table where we keep track of Slack messages that mention PRs
       PullRequestMentionsTable:
         Type: AWS::DynamoDB::Table
         Properties:

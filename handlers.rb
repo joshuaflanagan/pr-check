@@ -7,6 +7,7 @@ require "http"
 require "slack_event_received"
 require "slack/add_reaction"
 require "github/event_received"
+require "mark_pr_approved"
 
 module Handlers
   def self.slack_event_received(event:, context:)
@@ -17,16 +18,15 @@ module Handlers
     Github::EventReceived.(event, context)
   end
 
+  def self.mark_pr_approved(event:, context:)
+    MarkPrApproved.(event, context)
+  end
+
   # TODO:
   # - load channel and timestamp from DB record
   # - load reaction from ENV (: separated?)
   # - load token from Amazon Secrets?
   def self.test_reaction(event:, context:)
-    return {
-      "statusCode": 200,
-      "body": JSON.generate({topic: ENV["snsArn"]})
-    }
-
     body = JSON.parse(event["body"])
 
     reaction = body["reaction"] || "three"
