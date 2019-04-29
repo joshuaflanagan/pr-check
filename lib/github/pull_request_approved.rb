@@ -2,6 +2,7 @@
 
 require "logger"
 require "pull_request_identifier"
+require "mark_pr_approved"
 
 module Github
   class PullRequestApproved
@@ -37,6 +38,10 @@ module Github
 
       logger << "Save approval: #{item} to #{table_name}"
       dynamodb_client.put_item(table_name: table_name, item: item)
+
+      MarkPrApproved::Invoke.(pr_id)
+    rescue => e
+      logger << "ERROR: #{e.inspect}\n#{e.backtrace}"
     end
 
     class Substitute

@@ -37,6 +37,12 @@ provider:
         - dynamodb:PutItem
       Resource:
          "Fn::GetAtt": [ PullRequestApprovalsTable, Arn ]
+    - Sid: MarkInvocation
+      Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource:
+        "*" # Ideally we would scope this to lambdas in this service
 
 package:
   include:
@@ -48,10 +54,16 @@ functions:
     handler: handlers.Handlers.slack_event_received
     events:
       - http: POST /slack
+    environment:
+      MARKPR_FUNCTION_NAME:
+        Ref: MarkLambdaFunction
   github:
     handler: handlers.Handlers.github_event_received
     events:
       - http: POST /github
+    environment:
+      MARKPR_FUNCTION_NAME:
+        Ref: MarkLambdaFunction
   mark:
     handler: handlers.Handlers.mark_pr_approved
     events:

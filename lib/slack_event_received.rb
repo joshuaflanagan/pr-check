@@ -3,6 +3,7 @@
 require "json"
 require "init"
 require "pull_request_identifier"
+require "mark_pr_approved"
 
 class SlackEventReceived
   dependency :logger, ::Logger
@@ -50,11 +51,15 @@ class SlackEventReceived
         message_ts = slack_event.fetch("message_ts")
         mention_id = "#{channel}|#{message_ts}"
         mentions_store.save(pr_id: pr_id, mention_id: mention_id)
+        MarkPrApproved::Invoke.(pr_id)
       end
     else
       logger << "UNHANDLED EVENT CALLBACK: #{payload}"
     end
     return success_response({ok: true})
+  rescue => e
+    logger << "ERROR: #{e.inspect}\n#{e.backtrace}"
+    fail_response(500)
   end
 
   def url_verify(payload)

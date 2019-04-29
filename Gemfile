@@ -9,6 +9,7 @@ gem "http"
 
 group :development do
   gem "aws-sdk-dynamodb"
+  gem "aws-sdk-lambda"
   gem "rspec"
   gem "byebug"
 end
