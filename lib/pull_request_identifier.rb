@@ -13,6 +13,4 @@ class PullRequestIdentifier
     _protocol, pr_id = url.split("://", 2)
     pr_id
   end
-
-  Substitute = self
 end

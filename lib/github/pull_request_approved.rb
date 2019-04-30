@@ -8,7 +8,6 @@ module Github
   class PullRequestApproved
     dependency :logger, Logger
     dependency :dynamodb_client, Aws::DynamoDB::Client
-    dependency :pull_request_identifier, PullRequestIdentifier
     attr_accessor :table_name
 
     def self.call(payload)
@@ -29,7 +28,7 @@ module Github
 
     def call(payload)
       pr_url = payload["pull_request"]["html_url"]
-      pr_id = pull_request_identifier.(pr_url)
+      pr_id = PullRequestIdentifier.(pr_url)
 
       item = {
         pr_id: pr_id,
