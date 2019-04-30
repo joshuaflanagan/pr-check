@@ -22,6 +22,7 @@ class SlackEventReceived
   end
 
   def call(event)
+    logger << "Slack Event: #{event}"
     payload = JSON.parse(event["body"])
 
     slack_message_type = payload["type"]
@@ -41,17 +42,21 @@ class SlackEventReceived
     slack_event = payload.fetch("event")
     slack_event_type = slack_event.fetch("type")
     if slack_event_type == "link_shared"
+      logger << "Handling link_shared event"
       github_links = slack_event["links"].select{|link|
         link["domain"] == "github.com"
       }
       if github_links.length == 1
         url = github_links[0].fetch("url")
+        logger << "Storing a mention of #{url}"
         pr_id = pull_request_identifier.(url)
         channel = slack_event.fetch("channel")
         message_ts = slack_event.fetch("message_ts")
         mention_id = "#{channel}|#{message_ts}"
         mentions_store.save(pr_id: pr_id, mention_id: mention_id)
         MarkPrApproved::Invoke.(pr_id)
+      else
+        logger << "Not storing an ambiguous mention. Links: #{github_links}"
       end
     else
       logger << "UNHANDLED EVENT CALLBACK: #{payload}"
@@ -63,6 +68,7 @@ class SlackEventReceived
   end
 
   def url_verify(payload)
+    logger << "Handling URL verification"
     challenge = payload["challenge"]
     unless challenge
       logger << "NO CHALLENGE: #{payload}"
