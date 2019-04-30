@@ -1,6 +1,7 @@
 service: pr-check
 plugins:
   - serverless-ruby-package
+  - serverless-pseudo-parameters
 
 provider:
   name: aws
@@ -42,7 +43,7 @@ provider:
       Action:
         - lambda:InvokeFunction
       Resource:
-        "*" # Ideally we would scope this to lambdas in this service
+        arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${self:provider.stage}-*
 
 package:
   include:

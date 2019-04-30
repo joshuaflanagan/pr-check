@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+serverless-pseudo-parameters@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/serverless-pseudo-parameters/-/serverless-pseudo-parameters-2.4.0.tgz#bf5ebe6948f60bbf69c7dc2cf4bd2a5ee7dc6761"
+  integrity sha512-lb9R62PUFdEAbbYH7pe1wzR7vtIpa8YI8OVcQ5LlLyE0+AxWG4bwEw33X5LE8+5oLwTy57Y/EevnxKnMeyiXxw==
+
 serverless-ruby-package@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/serverless-ruby-package/-/serverless-ruby-package-1.1.1.tgz#696dcc358a9e46d0575fffc14d416adfea65466c"
