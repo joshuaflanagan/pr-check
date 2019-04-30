@@ -93,6 +93,10 @@ class MarkPrApproved
       end
     end
 
+    def self.configure(other)
+      other.invoke_mark_pr_approved = build
+    end
+
     def call(pr_id)
       payload = {"pr_id" => pr_id}
       # Since we can invoke via HTTP as well, need to use same 'event' shape

@@ -8,6 +8,7 @@ require "mark_pr_approved"
 class SlackEventReceived
   dependency :logger, ::Logger
   dependency :mentions_store, MentionsStore
+  dependency :invoke_mark_pr_approved, MarkPrApproved::Invoke
 
   def self.call(event, context)
     build.call(event)
@@ -17,6 +18,7 @@ class SlackEventReceived
     new.tap do |instance|
       Logger.configure(instance)
       MentionsStore.configure(instance)
+      MarkPrApproved::Invoke.configure(instance)
     end
   end
 
@@ -53,7 +55,7 @@ class SlackEventReceived
         message_ts = slack_event.fetch("message_ts")
         mention_id = "#{channel}|#{message_ts}"
         mentions_store.save(pr_id: pr_id, mention_id: mention_id)
-        MarkPrApproved::Invoke.(pr_id)
+        invoke_mark_pr_approved.(pr_id)
       else
         logger << "Not storing an ambiguous mention. Links: #{github_links}"
       end

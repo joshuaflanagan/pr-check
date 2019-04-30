@@ -8,6 +8,8 @@ module Github
   class PullRequestApproved
     dependency :logger, Logger
     dependency :dynamodb_client, Aws::DynamoDB::Client
+    dependency :invoke_mark_pr_approved, MarkPrApproved::Invoke
+
     attr_accessor :table_name
 
     def self.call(payload)
@@ -19,6 +21,7 @@ module Github
         DynamodbClient.configure(instance)
         Logger.configure(instance)
         Settings.configure("prapproved", instance)
+        MarkPrApproved::Invoke.configure(instance)
       end
     end
 
@@ -38,7 +41,7 @@ module Github
       logger << "Save approval: #{item} to #{table_name}"
       dynamodb_client.put_item(table_name: table_name, item: item)
 
-      MarkPrApproved::Invoke.(pr_id)
+      invoke_mark_pr_approved.(pr_id)
     rescue => e
       logger << "ERROR: #{e.inspect}\n#{e.backtrace}"
     end
