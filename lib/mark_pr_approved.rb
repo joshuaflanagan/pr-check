@@ -33,6 +33,7 @@ class MarkPrApproved
     logger << "Checking for approvals of #{pr_id} in #{approvals_table}"
     # See if the PR has been approved yet
     result = dynamodb_client.get_item({
+      consistent_read: true,
       table_name: approvals_table,
       key: {"pr_id": pr_id}
     })
@@ -43,8 +44,10 @@ class MarkPrApproved
 
     # The PR was approved, find all messages that mentioned it
     logger << "Checking for mentions of #{pr_id} in #{mentions_table}"
-    result =dynamodb_client.query({
+    #TODO: filter to mentions that have not been updated
+    result = dynamodb_client.query({
       table_name: mentions_table,
+      consistent_read: true,
       key_condition_expression: "pr_id = :pr",
       expression_attribute_values: {
         ":pr"=> pr_id
@@ -57,6 +60,7 @@ class MarkPrApproved
       logger << "Adding reaction to #{channel} - #{timestamp}"
       response = Slack::AddReaction.(channel: channel, timestamp: timestamp, reaction: reaction)
       logger << "SLACK RESPONSE: #{response.status} - #{response.body}"
+      #TODO: if successful, mark the mention as having a reaction
     rescue => e
       logger << "Error adding reaction to #{channel} - #{timestamp}: #{e.inspect}\n#{e.backtrace}"
     end
