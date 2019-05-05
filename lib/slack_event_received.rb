@@ -49,13 +49,17 @@ class SlackEventReceived
       }
       if github_links.length == 1
         url = github_links[0].fetch("url")
-        logger << "Storing a mention of #{url}"
         pr_id = PullRequestIdentifier.(url)
-        channel = slack_event.fetch("channel")
-        message_ts = slack_event.fetch("message_ts")
-        mention_id = "#{channel}|#{message_ts}"
-        mentions_store.save(pr_id: pr_id, mention_id: mention_id)
-        invoke_mark_pr_approved.(pr_id)
+        if pr_id
+          logger << "Storing a mention of #{url}"
+          channel = slack_event.fetch("channel")
+          message_ts = slack_event.fetch("message_ts")
+          mention_id = "#{channel}|#{message_ts}"
+          mentions_store.save(pr_id: pr_id, mention_id: mention_id)
+          invoke_mark_pr_approved.(pr_id)
+        else
+          logger << "Not a pull request link: #{url}"
+        end
       else
         logger << "Not storing an ambiguous mention. Links: #{github_links}"
       end

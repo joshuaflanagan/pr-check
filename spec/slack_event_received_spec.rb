@@ -109,6 +109,7 @@ RSpec.describe "Handling Slack events" do
       }
 
       context "containing a single github link" do
+        let(:url) { "https://github.com/ExampleUser/example_repo/pull/4204"}
         let(:links) {
           [
             {
@@ -116,7 +117,7 @@ RSpec.describe "Handling Slack events" do
               "domain"=>"slack.com"
             },
             {
-              "url"=>"https://github.com/ExampleUser/example_repo/pull/4204",
+              "url"=> url,
               "domain"=>"github.com"
             }
           ]
@@ -127,14 +128,29 @@ RSpec.describe "Handling Slack events" do
           expect(response.fetch("statusCode")).to eq(200)
         end
 
-        it "captures the mention as a PR and message identifier" do
-          handler.call(lambda_event)
+        context "and the link refers to a pull request" do
+          let(:url) { "https://github.com/ExampleUser/example_repo/pull/4204"}
+          it "captures the mention as a PR and message identifier" do
+            handler.call(lambda_event)
 
-          mentions_store = handler.mentions_store
-          saved_mention = mentions_store.last_mention
+            mentions_store = handler.mentions_store
+            saved_mention = mentions_store.last_mention
 
-          expect(saved_mention[:pr_id]).to eq("github.com/ExampleUser/example_repo/pull/4204")
-          expect(saved_mention[:mention_id]).to eq("CHANNEL200|1555820195.000400")
+            expect(saved_mention[:pr_id]).to eq("github.com/exampleuser/example_repo/pull/4204")
+            expect(saved_mention[:mention_id]).to eq("CHANNEL200|1555820195.000400")
+          end
+        end
+        context "and the link does not refer to a pull request" do
+          let(:url) { "https://github.com/ExampleUser/example_repo/blob/85f396092b14c8/a.txt"}
+
+          it "does not capture a mention" do
+            handler.call(lambda_event)
+
+            mentions_store = handler.mentions_store
+            saved_mention = mentions_store.last_mention
+
+            expect(saved_mention).to be_nil
+          end
         end
       end
 
