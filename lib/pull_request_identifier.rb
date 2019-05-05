@@ -9,8 +9,11 @@ class PullRequestIdentifier
     new
   end
 
+  PR_ID_REGEX = /github\.com\/(.+?)\/(.+?)\/pull\/\d+/i
   def call(url)
-    _protocol, pr_id = url.split("://", 2)
-    pr_id
+    match = PR_ID_REGEX.match(url)
+    if match
+      match.to_s.downcase
+    end
   end
 end
