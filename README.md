@@ -36,6 +36,10 @@ Install the ruby gems
 bundle install --standalone --path vendor/bundle
 ```
 
+You also need to have a Docker daemon running if you attempt to deploy. The
+first deploy may take a long time as the Docker image used to compile native
+gems is downloaded.
+
 ## Deployment
 
 > Make sure you follow the instructions for Initial Deployment Configuration
