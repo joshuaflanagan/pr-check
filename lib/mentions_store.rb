@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require "mention"
+
 class MentionsStore
   dependency :dynamodb_client, Aws::DynamoDB::Client
-  attr_accessor :table_name
+  attr_accessor :table
   attr_accessor :ttl
 
   def self.configure(other)
@@ -17,12 +19,11 @@ class MentionsStore
   end
 
   def save(pr_id:, mention_id:)
-    item = {
-      pr_id: pr_id,
-      mention_id: mention_id,
-      expires_at: (Time.now.to_i + Integer(ttl))
-    }
-    dynamodb_client.put_item(table_name: table_name, item: item)
+    expiration = Time.now.to_i + Integer(ttl)
+    item = Mention::PrimaryKey.(pr_id, mention_id).merge({
+      expires_at: expiration
+    })
+    dynamodb_client.put_item(table_name: table, item: item)
   end
 
   class Substitute

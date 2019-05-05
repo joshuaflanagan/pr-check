@@ -14,12 +14,20 @@ provider:
     App: ${self:service}
 
   environment:
-    PRAPPROVED_TABLE_NAME: ${self:service}-${self:provider.stage}-PullRequestApprovals
-    MENTIONS_TABLE_NAME: ${self:service}-${self:provider.stage}-PullRequestMentions
+    TABLE: ${self:service}-${self:provider.stage}
     MENTIONS_TTL: 2592000 # 30 days
     SLACK_TOKEN: ${env:SLACK_TOKEN}
 
   iamRoleStatements:
+    # Give our lambda permission to write to our dynamodb table
+    - Sid: DynamoReadWriteAccess
+      Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:Query
+        - dynamodb:PutItem
+      Resource:
+         "Fn::GetAtt": [ PRCheckTable, Arn ]
     # Give our lambda permission to store events in the mentions dynamodb table
     - Sid: MentionsReadWriteAccess
       Effect: Allow
@@ -80,6 +88,22 @@ functions:
 
 resources:
   - Resources:
+      #The DynamoDB table that stores the services data
+      PRCheckTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: ${self:service}-${self:provider.stage}
+          AttributeDefinitions:
+            - AttributeName: part_key
+              AttributeType: S
+            - AttributeName: sort_key
+              AttributeType: S
+          KeySchema:
+            - AttributeName: part_key
+              KeyType: HASH
+            - AttributeName: sort_key
+              KeyType: RANGE
+          BillingMode: PAY_PER_REQUEST
       #The DynamoDB table where we keep track of PRs that have been approved
       PullRequestApprovalsTable:
         Type: AWS::DynamoDB::Table
