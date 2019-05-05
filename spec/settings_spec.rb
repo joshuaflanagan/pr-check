@@ -8,14 +8,15 @@ RSpec.describe "Settings" do
       "OWNER_AGE" => 42,
       "OWNER_Phone" => "555-1212",
       "OWNER_ZIP_CODE" => "90210",
-      "WEIGHT" => 120,
-      "HEIGHT" => 72,
+      "PLANET" => "earth",
+      "OTHER_WEIGHT" => 120,
+      "OTHER_HEIGHT" => 72,
     }
 
     Settings.init(configuration_values)
 
     example_class = Class.new do
-      attr_accessor :name, :age, :zipcode, :weight, :height
+      attr_accessor :name, :age, :zipcode, :weight, :height, :planet
       attr_reader :phone
     end
 
@@ -29,5 +30,6 @@ RSpec.describe "Settings" do
     expect(instance.phone).to be_nil # no setter
     expect(instance.weight).to be_nil # no namespace
     expect(instance.height).to be_nil # wrong namespace
+    expect(instance.planet).to eq("earth") # global namespace
   end
 end
