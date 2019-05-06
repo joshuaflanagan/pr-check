@@ -3,11 +3,12 @@
 require "logger"
 require "settings"
 require "slack/add_reaction"
+require "mention"
 
 class MarkPrApproved
   dependency :logger, Logger
   dependency :dynamodb_client, Aws::DynamoDB::Client
-  attr_accessor :reaction
+  attr_accessor :reaction, :table
 
   def self.call(event, context)
     build.call(event)
@@ -26,16 +27,12 @@ class MarkPrApproved
     body = JSON.parse(event["body"])
     pr_id = body.fetch("pr_id")
 
-    # TODO: figure out how to inject these
-    approvals_table = ENV["PRAPPROVED_TABLE_NAME"]
-    mentions_table = ENV["MENTIONS_TABLE_NAME"]
-
-    logger << "Checking for approvals of #{pr_id} in #{approvals_table}"
+    logger << "Checking for approvals of #{pr_id} in #{table}"
     # See if the PR has been approved yet
     result = dynamodb_client.get_item({
       consistent_read: true,
-      table_name: approvals_table,
-      key: {"pr_id": pr_id}
+      table_name: table,
+      key: Approval::PrimaryKey.(pr_id)
     })
     unless result.item
       logger << "No approvals found"
@@ -43,20 +40,22 @@ class MarkPrApproved
     end
 
     # The PR was approved, find all messages that mentioned it
-    logger << "Checking for mentions of #{pr_id} in #{mentions_table}"
+    logger << "Checking for mentions of #{pr_id} in #{table}"
     #TODO: filter to mentions that have not been updated
     result = dynamodb_client.query({
-      table_name: mentions_table,
+      table_name: table,
       consistent_read: true,
-      key_condition_expression: "pr_id = :pr",
+      key_condition_expression: "part_key=:pr AND begins_with(sort_key, :prefix)",
       expression_attribute_values: {
-        ":pr"=> pr_id
+        ":pr"=> pr_id,
+        ":prefix" => Mention::PrimaryKey::PREFIX
       }
     })
     logger << "Found #{result.items.length} mentions"
 
     result.items.each do |mention|
-      channel, timestamp = mention["mention_id"].split("|", 2)
+      mention_id = mention["sort_key"][Mention::PrimaryKey::PREFIX.length..-1]
+      channel, timestamp = mention_id.split("|", 2)
       logger << "Adding reaction to #{channel} - #{timestamp}"
       response = Slack::AddReaction.(channel: channel, timestamp: timestamp, reaction: reaction)
       logger << "SLACK RESPONSE: #{response.status} - #{response.body}"

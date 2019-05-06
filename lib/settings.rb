@@ -9,7 +9,10 @@ class Settings
   def self.configure(namespace, other)
     @values.each do |key, value|
       setting_ns, setting = key.split("_", 2)
-      if setting_ns.downcase == namespace
+      if setting.nil?
+        setting, setting_ns = setting_ns, setting
+      end
+      if setting_ns.nil? || (setting_ns.downcase == namespace)
         method_name = "#{setting.downcase}=".to_sym
         if other.respond_to?(method_name)
           other.public_send(method_name, value)

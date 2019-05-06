@@ -3,6 +3,19 @@
 Monitors Slack for messages that refer to a Pull Request. When that Pull Request
 is approved, adds a reaction emoji to each of the messages that mentioned it.
 
+## How it works
+
+1. Slack sends a POST to the service's `/slack` endpoint any time a `github.com` URL is mentioned.
+The service records that mention as Pull Request URL, the Slack channel the message was posted in,
+and the timestamp of the message (which is Slack's unique identifier).
+
+2. GitHub sends a POST to the service's `/github` endpoint any time a Pull Request is approved.
+The service records the Pull Request URL as an approval.
+
+3. The system makes an API call to Slack to add a reaction emoji to each mention of an approved Pull Request.
+
+> * Note that steps 1 and 2 can happen in any order, and both will trigger step 3.
+
 ## Development requirements
 
 Install serverless globally
@@ -22,6 +35,10 @@ Install the ruby gems
 ```
 bundle install --standalone --path vendor/bundle
 ```
+
+You also need to have a Docker daemon running if you attempt to deploy. The
+first deploy may take a long time as the Docker image used to compile native
+gems is downloaded.
 
 ## Deployment
 

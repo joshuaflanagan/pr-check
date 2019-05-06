@@ -3,6 +3,7 @@
 require "logger"
 require "pull_request_identifier"
 require "mark_pr_approved"
+require "approval"
 
 module Github
   class PullRequestApproved
@@ -10,7 +11,7 @@ module Github
     dependency :dynamodb_client, Aws::DynamoDB::Client
     dependency :invoke_mark_pr_approved, MarkPrApproved::Invoke
 
-    attr_accessor :table_name
+    attr_accessor :table
 
     def self.call(payload)
       build.call(payload)
@@ -33,13 +34,12 @@ module Github
       pr_url = payload["pull_request"]["html_url"]
       pr_id = PullRequestIdentifier.(pr_url)
 
-      item = {
-        pr_id: pr_id,
-        approved_at: Time.now.to_i # needs to be integer. add assertion
-      }
+      item = Approval::PrimaryKey.(pr_id).merge({
+        approved_at: Time.now.to_i
+      })
 
-      logger << "Save approval: #{item} to #{table_name}"
-      dynamodb_client.put_item(table_name: table_name, item: item)
+      logger << "Save approval: #{item} to #{table}"
+      dynamodb_client.put_item(table_name: table, item: item)
 
       invoke_mark_pr_approved.(pr_id)
     rescue => e
