@@ -28,24 +28,7 @@ provider:
         - dynamodb:PutItem
       Resource:
          "Fn::GetAtt": [ PRCheckTable, Arn ]
-    # Give our lambda permission to store events in the mentions dynamodb table
-    - Sid: MentionsReadWriteAccess
-      Effect: Allow
-      Action:
-        - dynamodb:GetItem
-        - dynamodb:Query
-        - dynamodb:PutItem
-      Resource:
-         "Fn::GetAtt": [ PullRequestMentionsTable, Arn ]
-    # Give our lambda permission to store events in the approvals dynamodb table
-    - Sid: ApprovalsReadWriteAccess
-      Effect: Allow
-      Action:
-        - dynamodb:GetItem
-        - dynamodb:Query
-        - dynamodb:PutItem
-      Resource:
-         "Fn::GetAtt": [ PullRequestApprovalsTable, Arn ]
+    # Give our lambda permission to invoke any other lambda in this service
     - Sid: MarkInvocation
       Effect: Allow
       Action:
@@ -102,34 +85,6 @@ resources:
             - AttributeName: part_key
               KeyType: HASH
             - AttributeName: sort_key
-              KeyType: RANGE
-          BillingMode: PAY_PER_REQUEST
-      #The DynamoDB table where we keep track of PRs that have been approved
-      PullRequestApprovalsTable:
-        Type: AWS::DynamoDB::Table
-        Properties:
-          TableName: ${self:service}-${self:provider.stage}-PullRequestApprovals
-          AttributeDefinitions:
-            - AttributeName: pr_id
-              AttributeType: S
-          KeySchema:
-            - AttributeName: pr_id
-              KeyType: HASH
-          BillingMode: PAY_PER_REQUEST
-      #The DynamoDB table where we keep track of Slack messages that mention PRs
-      PullRequestMentionsTable:
-        Type: AWS::DynamoDB::Table
-        Properties:
-          TableName: ${self:service}-${self:provider.stage}-PullRequestMentions
-          AttributeDefinitions:
-            - AttributeName: pr_id
-              AttributeType: S
-            - AttributeName: mention_id
-              AttributeType: S
-          KeySchema:
-            - AttributeName: pr_id
-              KeyType: HASH
-            - AttributeName: mention_id
               KeyType: RANGE
           BillingMode: PAY_PER_REQUEST
           TimeToLiveSpecification:
