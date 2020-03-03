@@ -62,7 +62,7 @@ functions:
       # This endpoint is only used to ease manual invocation
       - http: POST /mark_prs
     environment:
-      MARK_REACTION: white_check_mark
+      MARK_REACTION: pr-approved
   # this is temporary, to get slack post mechanics working
   react:
     handler: handlers.Handlers.test_reaction
