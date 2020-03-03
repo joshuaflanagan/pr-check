@@ -66,7 +66,7 @@ Development Slack Workspace: <choose your workspace>
 
 On the App Settings page, go to OAuth & Permissions
 
-Scroll down to Scopes and add:
+Scroll down to User Token Scopes and add:
 
 ```
 reactions:write # under Reactions
