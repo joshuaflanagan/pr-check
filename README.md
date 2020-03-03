@@ -92,15 +92,15 @@ SLACK_TOKEN=yourtoken serverless deploy -s production
 When the deploy finishes, the output will contain a list of `endpoints`.
 Copy the URL that ends with `slack`.
 
-Back in the Slack app settings page, go to Basic Information
-Click Add features and functionality
-Click Event Subscriptions
-Click to Enable Events
-Paste in the URL from the deploy that ends with `slack`
-Click Add Workspace Event, choose link_shared
-At the bottom of the page under App Unfurl Domains, click Add Domain
-Enter `github.com` and click Done
-Click Save Changes
+- Back in the Slack app settings page, go to Basic Information
+- Click Add features and functionality
+- Click Event Subscriptions
+- Click to Enable Events
+- Paste in the URL from the deploy that ends with `slack`
+- Click Add Workspace Event, choose link_shared
+- At the bottom of the page under App Unfurl Domains, click Add Domain
+- Enter `github.com` and click Done
+- Click Save Changes
 
 ### Configure Github
 
