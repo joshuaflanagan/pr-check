@@ -16,3 +16,5 @@ end
 
 require "dependency"
 Dependency.activate
+
+ENV["AWS_REGION"] ||= "us-east1" # for DynamoDB client initialization

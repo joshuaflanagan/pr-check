@@ -210,6 +210,32 @@ RSpec.describe "Handling Slack events" do
 
           expect(saved_mention).to be_nil
         end
+
+        context "but they are actually the same link" do
+          let(:links) {
+            [
+              {
+                "url"=>"https://github.com/ExampleUser/example_repo/pull/4204",
+                "domain"=>"github.com"
+              },
+              {
+                "url"=>"https://github.com/ExampleUser/example_repo/pull/4204",
+                "domain"=>"github.com"
+              },
+            ]
+          }
+
+          it "captures the mention as a PR and message identifier" do
+            handler.call(lambda_event)
+
+            mentions_store = handler.mentions_store
+            saved_mention = mentions_store.last_mention
+
+            expect(saved_mention).to_not be_nil
+            expect(saved_mention[:pr_id]).to eq("github.com/exampleuser/example_repo/pull/4204")
+            expect(saved_mention[:mention_id]).to eq("CHANNEL200|1555820195.000400")
+          end
+        end
       end
     end
   end

@@ -46,7 +46,7 @@ class SlackEventReceived
       logger << "Handling link_shared event"
       github_links = slack_event["links"].select{|link|
         link["domain"] == "github.com"
-      }
+      }.uniq
       if github_links.length == 1
         url = github_links[0].fetch("url")
         pr_id = PullRequestIdentifier.(url)
