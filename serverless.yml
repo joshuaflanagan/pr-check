@@ -7,7 +7,6 @@ provider:
   name: aws
   runtime: ruby2.7
   stage: ${opt:stage, "development"}
-  profile: ${env:AWS_PROFILE}
 
   stackTags:
     Env: ${self:provider.stage}
