@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require "logger"
+require "custom_logger"
 require "settings"
 require "slack/add_reaction"
 require "mention"
 
 class MarkPrApproved
-  dependency :logger, Logger
+  dependency :logger, CustomLogger
   dependency :dynamodb_client, Aws::DynamoDB::Client
   attr_accessor :reaction, :table
 
@@ -17,7 +17,7 @@ class MarkPrApproved
   def self.build
     new.tap do |instance|
       DynamodbClient.configure(instance)
-      Logger.configure(instance)
+      CustomLogger.configure(instance)
       Settings.configure("mark", instance)
     end
   end
@@ -76,7 +76,7 @@ class MarkPrApproved
   end
 
   class Invoke
-    dependency :logger, Logger
+    dependency :logger, CustomLogger
     dependency :lambda_client, Aws::Lambda::Client
     attr_accessor :function_name
 
@@ -86,7 +86,7 @@ class MarkPrApproved
 
     def self.build
       new.tap do |instance|
-        Logger.configure(instance)
+        CustomLogger.configure(instance)
         LambdaClient.configure(instance)
         Settings.configure("markpr", instance)
       end

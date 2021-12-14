@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Logger
+class CustomLogger
   def self.configure(other)
     other.logger = new
   end
