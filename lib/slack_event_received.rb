@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
+require "custom_logger"
 require "json"
 require "init"
 require "pull_request_identifier"
 require "mark_pr_approved"
 
 class SlackEventReceived
-  dependency :logger, ::Logger
+  dependency :logger, CustomLogger
   dependency :mentions_store, MentionsStore
   dependency :invoke_mark_pr_approved, MarkPrApproved::Invoke
 
@@ -16,7 +17,7 @@ class SlackEventReceived
 
   def self.build
     new.tap do |instance|
-      Logger.configure(instance)
+      CustomLogger.configure(instance)
       MentionsStore.configure(instance)
       MarkPrApproved::Invoke.configure(instance)
     end

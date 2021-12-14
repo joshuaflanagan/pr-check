@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require "json"
-require "logger"
+require "custom_logger"
 require "init"
 
 require "github/pull_request_approved"
 
 module Github
   class EventReceived
-    dependency :logger, Logger
+    dependency :logger, CustomLogger
     dependency :pull_request_approved, PullRequestApproved
 
     def self.call(event, context)
@@ -17,7 +17,7 @@ module Github
 
     def self.build
       new.tap do |instance|
-        Logger.configure(instance)
+        CustomLogger.configure(instance)
         PullRequestApproved.configure(instance)
       end
     end

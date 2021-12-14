@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require "logger"
+require "custom_logger"
 require "pull_request_identifier"
 require "mark_pr_approved"
 require "approval"
 
 module Github
   class PullRequestApproved
-    dependency :logger, Logger
+    dependency :logger, CustomLogger
     dependency :dynamodb_client, Aws::DynamoDB::Client
     dependency :invoke_mark_pr_approved, MarkPrApproved::Invoke
 
@@ -20,7 +20,7 @@ module Github
     def self.build
       new.tap do |instance|
         DynamodbClient.configure(instance)
-        Logger.configure(instance)
+        CustomLogger.configure(instance)
         Settings.configure("prapproved", instance)
         MarkPrApproved::Invoke.configure(instance)
       end
