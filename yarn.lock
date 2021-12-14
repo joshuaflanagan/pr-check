@@ -8,6 +8,6 @@ serverless-pseudo-parameters@^2.4.0:
   integrity sha512-lb9R62PUFdEAbbYH7pe1wzR7vtIpa8YI8OVcQ5LlLyE0+AxWG4bwEw33X5LE8+5oLwTy57Y/EevnxKnMeyiXxw==
 
 serverless-ruby-package@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/serverless-ruby-package/-/serverless-ruby-package-1.1.1.tgz#696dcc358a9e46d0575fffc14d416adfea65466c"
-  integrity sha512-K4qCMk30PFVt0rxIcBpP+MkruCiJoRkktnm4I9LdwWYKuRGvLZY5Zo/wQn7APSRlah8InYeDfPsWZKnQk9KPLg==
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/serverless-ruby-package/-/serverless-ruby-package-1.4.0.tgz#42179e7fd08ade8def29ce4bc95ea19627656e3c"
+  integrity sha512-OFVvYMihRIjKv7pdrBGo2O4pLPw0yTe7pBTyNwah2tQgVUDvQ5qNrdt6K/VvH99mz9k2MzD3HMkMCHM33kNDwQ==
