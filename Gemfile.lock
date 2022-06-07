@@ -39,7 +39,7 @@ GEM
       domain_name (~> 0.5)
     http-form_data (2.1.1)
     http_parser.rb (0.6.0)
-    jmespath (1.4.0)
+    jmespath (1.6.1)
     naught (1.1.0)
     public_suffix (3.0.3)
     rspec (3.8.0)
