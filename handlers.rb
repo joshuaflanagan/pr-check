@@ -27,7 +27,15 @@ module Handlers
   # - load reaction from ENV (: separated?)
   # - load token from Amazon Secrets?
   def self.test_reaction(event:, context:)
+    require "custom_logger"
+    logger = CustomLogger.new
+    logger << "test_reaction context:"
+    logger << "  aws_request_id #{context.aws_request_id}"
+    logger << "  log_group_name #{context.log_group_name}"
+    logger << "  log_stream_name #{context.log_stream_name}"
+    logger << "test_reaction event: #{event}"
     body = JSON.parse(event["body"])
+
 
     reaction = body["reaction"] || "three"
     channel = body["channel"] || "GGFEQAZRB"
@@ -36,12 +44,14 @@ module Handlers
     begin
       Slack::AddReaction.(channel: channel, timestamp: timestamp, reaction: reaction)
     rescue Slack::Http::Error => e
+      logger << "test_reaction error: #{event}"
       return {
         "statusCode" => 500,
         "body" => JSON.generate({errorStatus: e.response.code, errorMessage: e.response.body.to_s})
       }
     end
 
+    logger << "test_reaction success"
     {
       "statusCode" => 200
     }
