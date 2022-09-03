@@ -56,10 +56,20 @@ class MarkPrApproved
     result.items.each do |mention|
       mention_id = mention["sort_key"][Mention::PrimaryKey::PREFIX.length..-1]
       channel, timestamp = mention_id.split("|", 2)
+      # We no longer store mentions that came from the COMPOSER, but a number
+      # of them already exist in the database.
+      if channel == "COMPOSER"
+        logger << "Skipping mention from #{channel}"
+        next
+      end
       logger << "Adding reaction to #{channel} - #{timestamp}"
       response = Slack::AddReaction.(channel: channel, timestamp: timestamp, reaction: reaction)
       logger << "SLACK RESPONSE: #{response.status} - #{response.body}"
       #TODO: if successful, mark the mention as having a reaction
+      # response body is JSON in form:
+      #   {"ok":true}
+      #   {"ok":false,"error":"already_reacted"}
+      #   {"ok":false,"error":"channel_not_found"}
     rescue => e
       logger << "Error adding reaction to #{channel} - #{timestamp}: #{e.inspect}\n#{e.backtrace}"
     end
@@ -113,7 +123,7 @@ class MarkPrApproved
         payload: lambda_payload
       })
 
-      logger << "Invocation result #{result.inspect}"
+      logger << "Invocation result status: #{result.status_code} payload: #{result.payload&.string}"
     end
   end
 end

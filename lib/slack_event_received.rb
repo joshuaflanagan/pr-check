@@ -45,6 +45,10 @@ class SlackEventReceived
     slack_event_type = slack_event.fetch("type")
     if slack_event_type == "link_shared"
       logger << "Handling link_shared event"
+      msg_source = slack_event["source"]
+      if msg_source != "conversations_history" # sent message
+        return fail_response(200, "Ignoring links from source '#{msg_source}'")
+      end
       github_links = slack_event["links"].select{|link|
         link["domain"] == "github.com"
       }.uniq
@@ -52,10 +56,10 @@ class SlackEventReceived
         url = github_links[0].fetch("url")
         pr_id = PullRequestIdentifier.(url)
         if pr_id
-          logger << "Storing a mention of #{url}"
           channel = slack_event.fetch("channel")
           message_ts = slack_event.fetch("message_ts")
           mention_id = "#{channel}|#{message_ts}"
+          logger << "Storing a mention of #{url} in channel #{channel} at #{message_ts}"
           mentions_store.save(pr_id: pr_id, mention_id: mention_id)
           invoke_mark_pr_approved.(pr_id)
         else
@@ -94,7 +98,8 @@ class SlackEventReceived
     }
   end
 
-  def fail_response(status)
+  def fail_response(status, message=null)
+    logger << message if message
     { "statusCode" => status }
   end
 end
