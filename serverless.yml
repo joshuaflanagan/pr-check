@@ -11,6 +11,8 @@ provider:
   stackTags:
     Env: ${self:provider.stage}
     App: ${self:service}
+    Description: "Slack bot to show Github Pull Request approvals"
+    Source: "https://github.com/joshuaflanagan/pr-check"
 
   environment:
     TABLE: ${self:service}-${self:provider.stage}
