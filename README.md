@@ -64,43 +64,60 @@ App Name: pr_check
 
 Development Slack Workspace: <choose your workspace>
 
-On the App Settings page, go to OAuth & Permissions
+On the App Settings page, go to **OAuth & Permissions** (may be in the sidebar)
 
-Scroll down to User Token Scopes and add:
+> You can ignore the parts about Token Rotation and Redirect URLs. That is only
+useful when you are using a Slack app that will be shared across workspaces.
+Currently pr-check assumes you will create a new app for every workspace where
+you want to use it, so there is no need for a User OAuth authentication
+(but you _will_ add OAuth scopes - I know, that is a little confusing).
+
+Scroll down to **Scopes**. There is a section for _Bot Token Scopes_ and a section
+for _User Token Scopes_. pr-check does not use User Tokens at all, so make sure
+you perform the following steps in the _Bot Token Scopes_ section.
+Click the **Add an OAuth Scope** button to add these scopes:
 
 ```
-reactions:write # under Reactions
-links:read      # under Unfurls
+reactions:write
+links:read
 ```
 
-Click Save Changes
-
-Scroll to the top of the page and click Install App to Workspace
+Go back to the **Basic Information** section for your app. Click _Install to Workspace_.
 
 You will see the OAuth approval page confirming you want to grant the permissions
-to the app. Click Authorize.
+to the app. Click **Allow**
 
-You should now see an OAuth Access Token at the top of the page. This is the
-value you need to set in the `SLACK_TOKEN` environment variable when you deploy.
+You should be brought back to the **Basic Information** section. You can optionally
+scroll down to **Display Information** to add a description, and possibly an icon,
+so that others in your workspace know what the app does.
 
-Deploy the app:
+Now go back to the **OAuth & Permissions** section. You should now see a
+_Bot User OAuth Token_. Copy this value, as it is the value you will set as
+the `SLACK_TOKEN` environment variable when you deploy.
+
+Keep the Slack app settings page open in your browser, as you will return to it
+soon.
+
+#### Deploy the app:
+
+From your command line in this repository's directory:
 
 ```
-SLACK_TOKEN=yourtoken serverless deploy -s production
+SLACK_TOKEN=your-bot-token serverless deploy -s production
 ```
 
 When the deploy finishes, the output will contain a list of `endpoints`.
 Copy the URL that ends with `slack`.
 
-- Back in the Slack app settings page, go to Basic Information
-- Click Add features and functionality
-- Click Event Subscriptions
-- Click to Enable Events
-- Paste in the URL from the deploy that ends with `slack`
-- Click Add Workspace Event, choose link_shared
-- At the bottom of the page under App Unfurl Domains, click Add Domain
+#### Back in the Slack app settings page
+
+Go to the **Event Subscriptions** page from the sidebar.
+- Toggle _Enable Events_ to `On`
+- Paste in the URL from the deploy that ends with `slack` as the _Request URL_
+- Expand the _Subscribe to bot events_ section, click _Add Bot User Event_ and
+choose `link_shared`
+- At the bottom of the page under _App Unfurl Domains_, click Add Domain
 - Enter `github.com` and click Done
-- Click Save Changes
 
 ### Configure Github
 
