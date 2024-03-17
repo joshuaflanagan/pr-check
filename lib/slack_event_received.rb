@@ -98,7 +98,7 @@ class SlackEventReceived
     }
   end
 
-  def fail_response(status, message=null)
+  def fail_response(status, message=nil)
     logger << message if message
     { "statusCode" => status }
   end
