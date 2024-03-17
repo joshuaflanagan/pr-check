@@ -11,5 +11,6 @@ gem "http"
 gem "rexml" # needed by aws-sdk, no longer included in Ruby 3.0
 
 group :development do
+  gem "debug"
   gem "rspec"
 end
