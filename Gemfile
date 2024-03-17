@@ -11,5 +11,4 @@ gem "http"
 
 group :development do
   gem "rspec"
-  gem "byebug"
 end
