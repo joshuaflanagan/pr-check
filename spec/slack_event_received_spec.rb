@@ -104,7 +104,8 @@ RSpec.describe "Handling Slack events" do
           "user"=>"USER5555",
           "channel"=>"CHANNEL200",
           "message_ts"=>"1555820195.000400",
-          "links"=> links
+          "links"=> links,
+          "source"=>"conversations_history"
         }
       }
 

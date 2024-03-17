@@ -16,7 +16,9 @@ The service records the Pull Request URL as an approval.
 
 > * Note that steps 1 and 2 can happen in any order, and both will trigger step 3.
 
-## Development requirements
+## Development
+
+### Dependencies
 
 Install serverless globally
 
@@ -39,6 +41,17 @@ bundle install --standalone --path vendor/bundle
 You also need to have a Docker daemon running if you attempt to deploy. The
 first deploy may take a long time as the Docker image used to compile native
 gems is downloaded.
+
+### Test
+
+Run the tests
+
+```
+bundle exec rspec
+```
+
+To debug a test, add `require "debug";debugger` in the code to create a breakpoint.
+
 
 ## Deployment
 
