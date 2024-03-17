@@ -1,7 +1,7 @@
 {
   "licence": "MIT",
   "dependencies": {
-    "serverless-ruby-package": "^1.1.1"
+    "serverless-ruby-package": "~3.2.0"
   },
   "devDependencies": {
     "serverless-pseudo-parameters": "^2.4.0"
