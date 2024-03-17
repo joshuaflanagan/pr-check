@@ -45,7 +45,7 @@ class SlackEventReceived
     slack_event_type = slack_event.fetch("type")
     if slack_event_type == "link_shared"
       logger << "Handling link_shared event"
-      msg_source = slack_event["source"]
+      msg_source = slack_event["source"] || "conversations_history"
       if msg_source != "conversations_history" # sent message
         return fail_response(200, "Ignoring links from source '#{msg_source}'")
       end

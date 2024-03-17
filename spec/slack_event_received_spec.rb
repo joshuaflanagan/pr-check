@@ -97,6 +97,7 @@ RSpec.describe "Handling Slack events" do
 
     context "and the event type is link_shared" do
       let(:links) { [] }
+      let(:slack_event_source) { "conversations_history" }
 
       let(:slack_event) {
         {
@@ -105,7 +106,7 @@ RSpec.describe "Handling Slack events" do
           "channel"=>"CHANNEL200",
           "message_ts"=>"1555820195.000400",
           "links"=> links,
-          "source"=>"conversations_history"
+          "source"=>slack_event_source
         }
       }
 
@@ -131,14 +132,43 @@ RSpec.describe "Handling Slack events" do
 
         context "and the link refers to a pull request" do
           let(:url) { "https://github.com/ExampleUser/example_repo/pull/4204"}
-          it "captures the mention as a PR and message identifier" do
-            handler.call(lambda_event)
 
-            mentions_store = handler.mentions_store
-            saved_mention = mentions_store.last_mention
+          context "and the source is conversations_history" do
+            let(:slack_event_source) { "conversations_history" }
+            it "captures the mention as a PR and message identifier" do
+              handler.call(lambda_event)
 
-            expect(saved_mention[:pr_id]).to eq("github.com/exampleuser/example_repo/pull/4204")
-            expect(saved_mention[:mention_id]).to eq("CHANNEL200|1555820195.000400")
+              mentions_store = handler.mentions_store
+              saved_mention = mentions_store.last_mention
+
+              expect(saved_mention[:pr_id]).to eq("github.com/exampleuser/example_repo/pull/4204")
+              expect(saved_mention[:mention_id]).to eq("CHANNEL200|1555820195.000400")
+            end
+          end
+
+          context "and the source is not specified" do
+            let(:slack_event_source) { nil }
+            it "captures the mention as a PR and message identifier" do
+              handler.call(lambda_event)
+
+              mentions_store = handler.mentions_store
+              saved_mention = mentions_store.last_mention
+
+              expect(saved_mention[:pr_id]).to eq("github.com/exampleuser/example_repo/pull/4204")
+              expect(saved_mention[:mention_id]).to eq("CHANNEL200|1555820195.000400")
+            end
+          end
+
+          context "and the source is something other than conversation_history" do
+            let(:slack_event_source) { "composer" }
+            it "does not capture a mention" do
+              handler.call(lambda_event)
+
+              mentions_store = handler.mentions_store
+              saved_mention = mentions_store.last_mention
+
+              expect(saved_mention).to be_nil
+            end
           end
         end
         context "and the link does not refer to a pull request" do
